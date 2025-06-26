@@ -27,13 +27,13 @@ export async function generateCode(input: GenerateCodeInput): Promise<GenerateCo
 const codeGenPrompt = ai.definePrompt({
     name: 'codeGenPrompt',
     input: {schema: GenerateCodeInputSchema},
-    output: {schema: z.object({ code: z.string().describe('The generated code snippet.') })},
+    output: {schema: GenerateCodeOutputSchema },
     prompt: `You are an expert code generator specializing in creating self-contained React components using TypeScript, Tailwind CSS, and shadcn/ui.
 
 Your task is to generate a single, functional, and self-contained JSX expression based on the user's prompt.
 
 Please adhere to the following guidelines:
-1.  **Code Only**: Your output MUST be ONLY the raw JSX code. Do not include any explanations, introductory phrases like "Here is the code:", or markdown fences like \`\`\`jsx.
+1.  **JSON Output**: Your output MUST be a valid JSON object with a single key "code". The value of "code" should be a string containing the raw JSX. Do not include any explanations or markdown fences like \`\`\`json.
 2.  **Self-Contained**: The code must be a single component or expression that can be rendered directly. It should manage its own state if necessary using React hooks (e.g., useState).
 3.  **Use Provided Components**: The execution environment has access to 'React', 'useState', 'useEffect' and all components from 'lucide-react'.
     The following shadcn/ui components are also available: Avatar, AvatarFallback, AvatarImage, Badge, Button, Calendar, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Checkbox, Input, Label, Popover, PopoverContent, PopoverTrigger, Progress, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider, Switch, Textarea.
@@ -55,14 +55,10 @@ const generateCodeFlow = ai.defineFlow(
     // Generate code
     const {output} = await codeGenPrompt(input);
 
-    if (!output || !output.code) {
+    if (!output) {
       throw new Error('The AI failed to generate a response in the expected format.');
     }
     
-    const code = output.code;
-    
-    return {
-        code,
-    };
+    return output;
   }
 );
