@@ -36,7 +36,7 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
     setActiveConversation(conversation);
   }, [allConversations]);
 
-  const startNewChat = () => {
+  const startNewChat = useCallback(() => {
     const newId = `chat-${Date.now()}`;
     const newConversation: Conversation = { 
       id: newId, 
@@ -46,9 +46,9 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
     setAllConversations(prev => [newConversation, ...prev]);
     setActiveConversation(newConversation);
     return newId;
-  };
+  }, []);
 
-  const updateActiveConversation = (messages: Message[]) => {
+  const updateActiveConversation = useCallback((messages: Message[]) => {
     if (!activeConversation) return;
 
     let newTitle = activeConversation.title;
@@ -64,19 +64,19 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
     setAllConversations(prev => 
       prev.map(c => c.id === activeConversation.id ? updatedConversation : c)
     );
-  };
+  }, [activeConversation]);
 
-  const deleteConversation = (id: string) => {
+  const deleteConversation = useCallback((id: string) => {
     setAllConversations(prev => prev.filter(c => c.id !== id));
     if (activeConversation?.id === id) {
       setActiveConversation(null);
     }
-  };
+  }, [activeConversation]);
 
-  const clearHistory = () => {
+  const clearHistory = useCallback(() => {
     setAllConversations([]);
     setActiveConversation(null);
-  };
+  }, []);
   
   const conversationsForSidebar = allConversations.map(({ id, title }) => ({ id, title }));
 
