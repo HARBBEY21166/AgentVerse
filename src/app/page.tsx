@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { chat } from '@/ai/flows/chat';
 import type { Message } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AppHeader } from '@/components/app-header';
-import { Bot, Send, User, Loader2 } from 'lucide-react';
+import { Bot, Send, User, Loader2, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,10 +18,16 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
+
+  const handleOpenInSandbox = (code: string) => {
+    const encodedCode = encodeURIComponent(code);
+    router.push(`/sandbox?code=${encodedCode}`);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +58,7 @@ export default function ChatPage() {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
         content: result.message,
+        code: result.code,
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
@@ -106,6 +114,22 @@ export default function ChatPage() {
                 )}
               >
                 <p className="whitespace-pre-wrap">{message.content}</p>
+                {message.code && (
+                  <div className="mt-4">
+                    <pre className="overflow-x-auto rounded-md bg-muted p-4 font-code">
+                      <code>{message.code}</code>
+                    </pre>
+                    <Button
+                      onClick={() => handleOpenInSandbox(message.code!)}
+                      className="mt-2"
+                      variant="outline"
+                      size="sm"
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Open in Sandbox
+                    </Button>
+                  </div>
+                )}
               </div>
               {message.role === 'user' && (
                 <Avatar className="h-8 w-8 border">

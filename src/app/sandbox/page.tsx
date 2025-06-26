@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,12 +10,21 @@ import { Loader2, Clipboard, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCode } from '@/ai/flows/generate-code';
 
-export default function SandboxPage() {
+function SandboxComponent() {
+  const searchParams = useSearchParams();
+  const initialCode = searchParams.get('code');
+
   const [prompt, setPrompt] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (initialCode) {
+      setGeneratedCode(initialCode);
+    }
+  }, [initialCode]);
 
   const handleGenerate = async () => {
     if (!prompt.trim() || isLoading) return;
@@ -48,8 +58,8 @@ export default function SandboxPage() {
   return (
     <div className="flex h-screen flex-col">
       <AppHeader title="Code Sandbox" />
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-        <div className="mx-auto grid max-w-4xl gap-8">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-6 lg:p-8 overflow-hidden">
+        <div className="flex flex-col gap-4">
           <Card>
             <CardHeader>
               <CardTitle>Code Generation Prompt</CardTitle>
@@ -63,42 +73,58 @@ export default function SandboxPage() {
                 disabled={isLoading}
               />
               <Button onClick={handleGenerate} disabled={isLoading || !prompt.trim()}>
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Generate Code
               </Button>
             </CardContent>
           </Card>
-
-          {(isLoading || generatedCode) && (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Generated Code</CardTitle>
-                {generatedCode && !isLoading && (
-                   <Button variant="ghost" size="icon" onClick={handleCopy}>
-                    {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4" />}
-                    <span className="sr-only">Copy code</span>
-                  </Button>
-                )}
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="flex items-center justify-center p-8">
+          <Card className="flex-1 flex flex-col">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Generated Code</CardTitle>
+              {generatedCode && !isLoading && (
+                 <Button variant="ghost" size="icon" onClick={handleCopy}>
+                  {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4" />}
+                  <span className="sr-only">Copy code</span>
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="flex-1">
+              {isLoading ? (
+                  <div className="flex items-center justify-center p-8 h-full">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   </div>
                 ) : (
-                  <div className="relative">
-                    <pre className="overflow-x-auto rounded-md bg-muted p-4">
-                      <code className="font-code text-sm">{generatedCode}</code>
-                    </pre>
-                  </div>
+                  <Textarea
+                    value={generatedCode}
+                    onChange={(e) => setGeneratedCode(e.target.value)}
+                    className="h-full w-full resize-none font-code text-sm"
+                    spellCheck="false"
+                  />
                 )}
-              </CardContent>
-            </Card>
-          )}
+            </CardContent>
+          </Card>
         </div>
+        
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle>Preview</CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 bg-muted/20 rounded-b-lg border flex items-center justify-center">
+             <div className="text-center text-muted-foreground">
+                <p>Preview is not available yet.</p>
+                <p className="text-xs">Run code to see a preview here.</p>
+             </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
+}
+
+export default function SandboxPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SandboxComponent />
+    </Suspense>
+  )
 }
