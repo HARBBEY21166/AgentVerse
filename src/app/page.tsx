@@ -93,10 +93,10 @@ export default function ChatPage() {
   return (
     <div className="flex h-screen flex-col">
       <AppHeader title="Chat" />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
         <div
           className={cn(
-            'mx-auto max-w-2xl space-y-6 p-4 md:p-6 lg:p-8',
+            'mx-auto max-w-4xl space-y-6',
             messages.length === 0 && !isLoading && 'flex h-full flex-col'
           )}
         >
@@ -185,7 +185,7 @@ export default function ChatPage() {
       </div>
 
       <div className="border-t bg-background">
-        <div className="mx-auto max-w-2xl p-4">
+        <div className="mx-auto max-w-4xl p-4">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
               value={input}
