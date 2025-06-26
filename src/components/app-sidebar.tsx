@@ -12,7 +12,7 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { Icons } from '@/components/icons';
-import { MessageSquare, Settings } from 'lucide-react';
+import { MessageSquare, Settings, Code } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from './ui/separator';
 
@@ -40,6 +40,18 @@ export default function AppSidebar() {
               <Link href="/">
                 <MessageSquare />
                 <span>Chat</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === '/sandbox'}
+              tooltip="Sandbox"
+            >
+              <Link href="/sandbox">
+                <Code />
+                <span>Sandbox</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
