@@ -10,7 +10,7 @@ import { Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCode } from '@/ai/flows/generate-code';
 import { LiveProvider, LiveEditor, LivePreview, LiveError } from 'react-live';
-import { dracula } from 'react-live/themes';
+import { themes } from 'prism-react-renderer';
 
 // Scope for react-live
 import * as LucideIcons from 'lucide-react';
@@ -109,7 +109,7 @@ function SandboxComponent() {
     <div className="flex h-screen flex-col">
       <AppHeader title="Code Sandbox" />
       <div className="flex-1 overflow-hidden">
-        <LiveProvider code={liveCode} scope={scope} theme={dracula} noInline={false}>
+        <LiveProvider code={liveCode} scope={scope} theme={themes.dracula} noInline={false}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 md:p-6 lg:p-8 h-full">
             
             {/* Left Column: Prompt and Editor */}
