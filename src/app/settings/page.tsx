@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,8 +22,34 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SettingsPage() {
+  const { toast } = useToast();
+  const [agentName, setAgentName] = useState('Marketing Maven');
+  const [agentRole, setAgentRole] = useState('creative-writer');
+  const [agentInstructions, setAgentInstructions] = useState(
+    'Always respond in a witty and engaging tone. Prioritize content that is shareable on social media.'
+  );
+
+  const [webBrowsing, setWebBrowsing] = useState(true);
+  const [dataAnalysis, setDataAnalysis] = useState(true);
+  const [codeExecution, setCodeExecution] = useState(false);
+
+  const handleSavePersona = () => {
+    toast({
+      title: 'Persona Saved',
+      description: 'Your agent persona has been updated.',
+    });
+  };
+
+  const handleSaveCapabilities = () => {
+    toast({
+      title: 'Capabilities Saved',
+      description: "Your agent's capabilities have been updated.",
+    });
+  };
+
   return (
     <div className="flex h-screen flex-col">
       <AppHeader title="Agent Customization" />
@@ -38,11 +65,16 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="agent-name">Agent Name</Label>
-                <Input id="agent-name" placeholder="e.g., Marketing Maven" />
+                <Input
+                  id="agent-name"
+                  placeholder="e.g., Marketing Maven"
+                  value={agentName}
+                  onChange={(e) => setAgentName(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="agent-role">Role</Label>
-                <Select>
+                <Select value={agentRole} onValueChange={setAgentRole}>
                   <SelectTrigger id="agent-role">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
@@ -69,11 +101,14 @@ export default function SettingsPage() {
                 <Textarea
                   id="agent-instructions"
                   placeholder="e.g., 'Always respond in a formal tone. Prioritize data from academic sources.'"
+                  value={agentInstructions}
+                  onChange={(e) => setAgentInstructions(e.target.value)}
+                  rows={3}
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button>Save Persona</Button>
+              <Button onClick={handleSavePersona}>Save Persona</Button>
             </CardFooter>
           </Card>
 
@@ -96,7 +131,8 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   id="tool-web-browsing"
-                  defaultChecked
+                  checked={webBrowsing}
+                  onCheckedChange={setWebBrowsing}
                 />
               </div>
               <div className="flex items-center justify-between rounded-lg border p-4">
@@ -110,7 +146,8 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   id="tool-data-analysis"
-                  defaultChecked
+                  checked={dataAnalysis}
+                  onCheckedChange={setDataAnalysis}
                 />
               </div>
               <div className="flex items-center justify-between rounded-lg border p-4">
@@ -122,11 +159,17 @@ export default function SettingsPage() {
                     Allow the agent to write and execute code snippets.
                   </p>
                 </div>
-                <Switch id="tool-code-execution" />
+                <Switch
+                  id="tool-code-execution"
+                  checked={codeExecution}
+                  onCheckedChange={setCodeExecution}
+                />
               </div>
             </CardContent>
             <CardFooter>
-              <Button>Save Capabilities</Button>
+              <Button onClick={handleSaveCapabilities}>
+                Save Capabilities
+              </Button>
             </CardFooter>
           </Card>
         </div>
