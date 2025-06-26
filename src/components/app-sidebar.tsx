@@ -114,10 +114,10 @@ export default function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Profile">
               <Avatar className="h-8 w-8">
-                 <AvatarImage src="https://placehold.co/40x40.png" alt="@user" data-ai-hint="user avatar" />
+                 <AvatarImage src="https://i.pinimg.com/736x/83/4f/e6/834fe637588ed7ccca41c0ebd659e855.jpg " alt="@user" data-ai-hint="user avatar" />
                  <AvatarFallback>AV</AvatarFallback>
               </Avatar>
-              <span className="group-data-[collapsible=icon]:hidden">User Profile</span>
+              <span className="group-data-[collapsible=icon]:hidden">Abiodun Abbey Aina</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
