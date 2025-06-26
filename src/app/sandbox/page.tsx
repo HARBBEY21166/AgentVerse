@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,9 +14,11 @@ import { generateCode } from '@/ai/flows/generate-code';
 function SandboxComponent() {
   const searchParams = useSearchParams();
   const initialCode = searchParams.get('code');
+  const initialPreview = searchParams.get('preview');
 
   const [prompt, setPrompt] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const { toast } = useToast();
@@ -24,18 +27,23 @@ function SandboxComponent() {
     if (initialCode) {
       setGeneratedCode(initialCode);
     }
-  }, [initialCode]);
+    if (initialPreview) {
+      setPreviewUrl(initialPreview);
+    }
+  }, [initialCode, initialPreview]);
 
   const handleGenerate = async () => {
     if (!prompt.trim() || isLoading) return;
 
     setIsLoading(true);
     setGeneratedCode('');
+    setPreviewUrl('');
     setIsCopied(false);
 
     try {
       const result = await generateCode({ prompt });
       setGeneratedCode(result.code);
+      setPreviewUrl(result.previewImageUrl);
     } catch (error) {
       console.error('Error generating code:', error);
       toast({
@@ -109,11 +117,26 @@ function SandboxComponent() {
           <CardHeader>
             <CardTitle>Preview</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 bg-muted/20 rounded-b-lg border flex items-center justify-center">
-             <div className="text-center text-muted-foreground">
-                <p>Preview is not available yet.</p>
-                <p className="text-xs">Run code to see a preview here.</p>
-             </div>
+          <CardContent className="flex-1 bg-muted/20 rounded-b-lg border flex items-center justify-center p-0 relative overflow-hidden">
+             {isLoading ? (
+                <div className="flex items-center justify-center p-8 h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : previewUrl ? (
+                <Image 
+                    src={previewUrl} 
+                    alt="Generated code preview" 
+                    fill
+                    sizes="50vw"
+                    style={{ objectFit: 'contain' }}
+                    data-ai-hint="component preview"
+                />
+             ) : (
+               <div className="text-center text-muted-foreground">
+                  <p>Preview will appear here.</p>
+                  <p className="text-xs">Generate code to see a preview.</p>
+               </div>
+             )}
           </CardContent>
         </Card>
       </div>

@@ -24,9 +24,14 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  const handleOpenInSandbox = (code: string) => {
+  const handleOpenInSandbox = (code: string, previewUrl?: string) => {
     const encodedCode = encodeURIComponent(code);
-    router.push(`/sandbox?code=${encodedCode}`);
+    let url = `/sandbox?code=${encodedCode}`;
+    if (previewUrl) {
+      const encodedPreviewUrl = encodeURIComponent(previewUrl);
+      url += `&preview=${encodedPreviewUrl}`;
+    }
+    router.push(url);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,6 +64,7 @@ export default function ChatPage() {
         role: 'assistant',
         content: result.message,
         code: result.code,
+        previewImageUrl: result.previewImageUrl,
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
@@ -120,7 +126,9 @@ export default function ChatPage() {
                       <code>{message.code}</code>
                     </pre>
                     <Button
-                      onClick={() => handleOpenInSandbox(message.code!)}
+                      onClick={() =>
+                        handleOpenInSandbox(message.code!, message.previewImageUrl)
+                      }
                       className="mt-2"
                       variant="outline"
                       size="sm"

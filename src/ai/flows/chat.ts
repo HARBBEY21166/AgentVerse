@@ -26,6 +26,7 @@ export type ChatInput = z.infer<typeof ChatInputSchema>;
 const ChatOutputSchema = z.object({
   message: z.string(),
   code: z.string().optional(),
+  previewImageUrl: z.string().optional(),
 });
 export type ChatOutput = z.infer<typeof ChatOutputSchema>;
 
@@ -61,6 +62,7 @@ const chatFlow = ai.defineFlow(
         message:
           "I've generated the code you requested. You can open it in the sandbox to see a preview.",
         code: codeResult.code,
+        previewImageUrl: codeResult.previewImageUrl,
       };
     } else {
       const history = input.history.map(msg => ({
