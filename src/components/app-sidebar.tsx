@@ -58,12 +58,11 @@ export default function AppSidebar() {
         <div className="flex-1 overflow-y-auto">
           <SidebarMenu>
             {conversations.map((conv) => (
-              <SidebarMenuItem key={conv.id}>
+              <SidebarMenuItem key={conv.id} className="group/item relative">
                 <SidebarMenuButton
                   asChild
                   isActive={conversationId === conv.id}
                   tooltip={conv.title}
-                  className="group/item relative"
                 >
                   <Link href={`/chat/${conv.id}`}>
                     <MessageSquare />
