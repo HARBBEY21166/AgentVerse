@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCode } from '@/ai/flows/generate-code';
@@ -39,6 +39,8 @@ const scope = {
   CardHeader,
   CardContent,
   CardTitle,
+  CardDescription,
+  CardFooter,
   Label,
   Avatar,
   AvatarImage,
