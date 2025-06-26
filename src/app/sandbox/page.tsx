@@ -107,6 +107,8 @@ function SandboxComponent() {
   
   const forceRerender = () => setKey(prev => prev + 1);
 
+  const isHtmlContent = liveCode.trim().toLowerCase().startsWith('<!doctype');
+
   return (
     <div className="flex h-screen flex-col">
       <AppHeader title="Code Sandbox" />
@@ -124,7 +126,7 @@ function SandboxComponent() {
                   <Textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="e.g., A React button component that increments a counter"
+                    placeholder="e.g., A React button that increments a counter, or a simple HTML page with a colored div"
                     className="min-h-[100px] text-base"
                     disabled={isLoading}
                   />
@@ -164,8 +166,20 @@ function SandboxComponent() {
                   </div>
                 ) : (
                   <>
-                    <LivePreview key={key} className="flex-1" />
-                    <LiveError className="text-destructive text-xs font-mono p-2 mt-2 bg-destructive/10 rounded-md overflow-auto" />
+                    {isHtmlContent ? (
+                       <iframe
+                        key={key}
+                        srcDoc={liveCode}
+                        title="preview"
+                        sandbox="allow-scripts"
+                        className="w-full h-full border-0"
+                      />
+                    ) : (
+                      <>
+                        <LivePreview key={key} className="flex-1" />
+                        <LiveError className="text-destructive text-xs font-mono p-2 mt-2 bg-destructive/10 rounded-md overflow-auto" />
+                      </>
+                    )}
                   </>
                 )}
               </CardContent>

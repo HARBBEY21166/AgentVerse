@@ -28,17 +28,25 @@ const codeGenPrompt = ai.definePrompt({
     name: 'codeGenPrompt',
     input: {schema: GenerateCodeInputSchema},
     output: {schema: GenerateCodeOutputSchema },
-    prompt: `You are an expert code generator specializing in creating self-contained React components using TypeScript, Tailwind CSS, and shadcn/ui.
+    prompt: `You are an expert code generator. Your task is to generate a single, self-contained code snippet based on the user's prompt. You can generate either a React component or a complete HTML file with embedded CSS and JavaScript.
 
-Your task is to generate a single, functional, and self-contained JSX expression based on the user's prompt.
+Determine the user's intent from the prompt:
+- If the prompt asks for a React component, or mentions React, JSX, or shadcn/ui, generate a self-contained JSX expression.
+- If the prompt asks for vanilla HTML, CSS, and/or JavaScript, generate a complete, single HTML file with embedded <style> and <script> tags.
 
-Please adhere to the following guidelines:
-1.  **JSON Output**: Your output MUST be a valid JSON object with a single key "code". The value of "code" should be a string containing the raw JSX. Do not include any explanations or markdown fences like \`\`\`json.
-2.  **Self-Contained**: The code must be a single component or expression that can be rendered directly. It should manage its own state if necessary using React hooks (e.g., useState).
-3.  **Use Provided Components**: The execution environment has access to 'React', 'useState', 'useEffect' and all components from 'lucide-react'.
+**JSON Output Format**
+Your output MUST be a valid JSON object with a single key "code". The value of this key should be a string containing the generated code. Do not include any explanations or markdown fences like \`\`\`json.
+
+**React Component Guidelines:**
+1.  **Self-Contained**: The code must be a single component or expression that can be rendered directly. It should manage its own state if necessary using React hooks (e.g., useState).
+2.  **Use Provided Components**: The execution environment has access to 'React', 'useState', 'useEffect' and all components from 'lucide-react'.
     The following shadcn/ui components are also available: Avatar, AvatarFallback, AvatarImage, Badge, Button, Calendar, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Checkbox, Input, Label, Popover, PopoverContent, PopoverTrigger, Progress, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider, Switch, Textarea.
-4.  **No Imports**: Do not include any \`import\` or \`require\` statements.
-5.  **Return a Function**: The final code should be an anonymous function that returns a JSX element. Example: \`() => <Button>Click Me</Button>\`.
+3.  **No Imports**: Do not include any \`import\` or \`require\` statements.
+4.  **Return a Function**: The final code should be an anonymous function that returns a JSX element. Example: \`() => <Button>Click Me</Button>\`.
+
+**HTML/CSS/JS Guidelines:**
+1.  **Single File**: All HTML, CSS, and JavaScript must be in a single HTML file. CSS should be inside a <style> tag in the <head>, and JavaScript should be inside a <script> tag at the end of the <body>. The HTML should start with \`<!DOCTYPE html>\`.
+2.  **No External Files**: Do not link to external CSS or JavaScript files.
 
 User Prompt: {{{prompt}}}
 `,
