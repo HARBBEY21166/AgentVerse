@@ -35,7 +35,8 @@ Your task is to generate a single, functional, and self-contained JSX expression
 Please adhere to the following guidelines:
 1.  **Code Only**: Your output MUST be ONLY the raw JSX code. Do not include any explanations, introductory phrases like "Here is the code:", or markdown fences like \`\`\`jsx.
 2.  **Self-Contained**: The code must be a single component or expression that can be rendered directly. It should manage its own state if necessary using React hooks (e.g., useState).
-3.  **Use Provided Components**: The execution environment has access to 'React', 'useState', 'useEffect' and all components from 'lucide-react' and 'shadcn/ui'. You can use components like <Button>, <Input>, <Card>, and icons like <Check /> directly.
+3.  **Use Provided Components**: The execution environment has access to 'React', 'useState', 'useEffect' and all components from 'lucide-react'.
+    The following shadcn/ui components are also available: Avatar, AvatarFallback, AvatarImage, Badge, Button, Calendar, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Checkbox, Input, Label, Popover, PopoverContent, PopoverTrigger, Progress, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider, Switch, Textarea.
 4.  **No Imports**: Do not include any \`import\` or \`require\` statements.
 5.  **Return a Function**: The final code should be an anonymous function that returns a JSX element. Example: \`() => <Button>Click Me</Button>\`.
 
@@ -53,7 +54,12 @@ const generateCodeFlow = ai.defineFlow(
   async (input) => {
     // Generate code
     const {output} = await codeGenPrompt(input);
-    const code = output!.code;
+
+    if (!output || !output.code) {
+      throw new Error('The AI failed to generate a response in the expected format.');
+    }
+    
+    const code = output.code;
     
     return {
         code,
