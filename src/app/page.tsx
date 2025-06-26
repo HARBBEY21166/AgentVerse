@@ -24,13 +24,9 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  const handleOpenInSandbox = (code: string, previewUrl?: string) => {
+  const handleOpenInSandbox = (code: string) => {
     const encodedCode = encodeURIComponent(code);
     let url = `/sandbox?code=${encodedCode}`;
-    if (previewUrl) {
-      const encodedPreviewUrl = encodeURIComponent(previewUrl);
-      url += `&preview=${encodedPreviewUrl}`;
-    }
     router.push(url);
   };
 
@@ -64,7 +60,6 @@ export default function ChatPage() {
         role: 'assistant',
         content: result.message,
         code: result.code,
-        previewImageUrl: result.previewImageUrl,
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
@@ -127,7 +122,7 @@ export default function ChatPage() {
                     </pre>
                     <Button
                       onClick={() =>
-                        handleOpenInSandbox(message.code!, message.previewImageUrl)
+                        handleOpenInSandbox(message.code!)
                       }
                       className="mt-2"
                       variant="outline"

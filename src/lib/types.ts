@@ -3,5 +3,4 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   code?: string;
-  previewImageUrl?: string;
 }
