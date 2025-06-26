@@ -20,32 +20,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-
-const SETTINGS_KEY = 'agentSettings';
-
-const DEFAULT_SETTINGS = {
-  agentName: 'Marketing Maven',
-  agentRole: 'creative-writer',
-  agentInstructions:
-    'Always respond in a witty and engaging tone. Prioritize content that is shareable on social media.',
-  webBrowsing: true,
-  dataAnalysis: true,
-  codeExecution: false,
-};
+import type { AgentSettings } from '@/lib/settings';
+import { SETTINGS_KEY, DEFAULT_SETTINGS } from '@/lib/settings';
 
 export default function SettingsPage() {
   const { toast } = useToast();
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<AgentSettings>(DEFAULT_SETTINGS);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     try {
       const savedSettings = localStorage.getItem(SETTINGS_KEY);
       if (savedSettings) {
-        setSettings(JSON.parse(savedSettings));
+        // Merge with defaults to ensure all keys are present
+        setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) });
       }
     } catch (error) {
       console.error('Failed to parse settings from localStorage', error);
@@ -53,12 +43,12 @@ export default function SettingsPage() {
     setIsLoaded(true);
   }, []);
 
-  const handleSave = (section: 'Persona' | 'Capabilities') => {
+  const handleSave = () => {
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
       toast({
-        title: `${section} Saved`,
-        description: `Your agent's ${section.toLowerCase()} has been updated.`,
+        title: `Persona Saved`,
+        description: `Your agent's persona has been updated.`,
       });
     } catch (error) {
       console.error('Failed to save settings to localStorage', error);
@@ -70,7 +60,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleValueChange = (key: keyof typeof DEFAULT_SETTINGS, value: string | boolean) => {
+  const handleValueChange = (key: keyof AgentSettings, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
   
@@ -87,7 +77,7 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle>Persona</CardTitle>
               <CardDescription>
-                Define the personality and role of your AI agent.
+                Define the personality and role of your AI agent. This will affect its responses in the chat.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -95,7 +85,7 @@ export default function SettingsPage() {
                 <Label htmlFor="agent-name">Agent Name</Label>
                 <Input
                   id="agent-name"
-                  placeholder="e.g., Marketing Maven"
+                  placeholder="e.g., AgentVerse"
                   value={settings.agentName}
                   onChange={(e) => handleValueChange('agentName', e.target.value)}
                 />
@@ -110,6 +100,9 @@ export default function SettingsPage() {
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
+                     <SelectItem value="helpful-assistant">
+                      Helpful Assistant
+                    </SelectItem>
                     <SelectItem value="research-analyst">
                       Research Analyst
                     </SelectItem>
@@ -141,74 +134,7 @@ export default function SettingsPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button onClick={() => handleSave('Persona')}>Save Persona</Button>
-            </CardFooter>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Capabilities</CardTitle>
-              <CardDescription>
-                Enable or disable tools the agent can use.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <Label htmlFor="tool-web-browsing" className="text-base">
-                    Web Browsing
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Allow the agent to search the internet for information.
-                  </p>
-                </div>
-                <Switch
-                  id="tool-web-browsing"
-                  checked={settings.webBrowsing}
-                  onCheckedChange={(checked) =>
-                    handleValueChange('webBrowsing', checked)
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <Label htmlFor="tool-data-analysis" className="text-base">
-                    Data Analysis
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Allow the agent to analyze data from uploaded files.
-                  </p>
-                </div>
-                <Switch
-                  id="tool-data-analysis"
-                  checked={settings.dataAnalysis}
-                  onCheckedChange={(checked) =>
-                    handleValueChange('dataAnalysis', checked)
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <Label htmlFor="tool-code-execution" className="text-base">
-                    Code Execution
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Allow the agent to write and execute code snippets.
-                  </p>
-                </div>
-                <Switch
-                  id="tool-code-execution"
-                  checked={settings.codeExecution}
-                  onCheckedChange={(checked) =>
-                    handleValueChange('codeExecution', checked)
-                  }
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button onClick={() => handleSave('Capabilities')}>
-                Save Capabilities
-              </Button>
+              <Button onClick={handleSave}>Save Persona</Button>
             </CardFooter>
           </Card>
         </div>

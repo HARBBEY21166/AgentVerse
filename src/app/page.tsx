@@ -11,14 +11,28 @@ import { AppHeader } from '@/components/app-header';
 import { Bot, Send, User, Loader2, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import type { AgentSettings } from '@/lib/settings';
+import { SETTINGS_KEY, DEFAULT_SETTINGS } from '@/lib/settings';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [settings, setSettings] = useState<AgentSettings>(DEFAULT_SETTINGS);
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const savedSettings = localStorage.getItem(SETTINGS_KEY);
+      if (savedSettings) {
+        setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) });
+      }
+    } catch (error) {
+      console.error('Failed to parse settings from localStorage', error);
+    }
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,6 +67,7 @@ export default function ChatPage() {
       const result = await chat({
         history: historyForApi,
         message: input,
+        settings,
       });
 
       const assistantMessage: Message = {
@@ -84,10 +99,10 @@ export default function ChatPage() {
             <div className="flex h-[calc(100vh-12rem)] flex-col items-center justify-center text-center text-muted-foreground">
               <Bot className="h-16 w-16" />
               <h2 className="mt-4 text-2xl font-semibold text-foreground">
-                AgentVerse Chat
+                Chat with {settings.agentName}
               </h2>
               <p className="mt-2">
-                Start a conversation by typing a message below.
+                Start a conversation by typing a message below. Your agent's persona can be changed in Settings.
               </p>
             </div>
           )}
@@ -170,7 +185,7 @@ export default function ChatPage() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Message AgentVerse..."
+              placeholder={`Message ${settings.agentName}...`}
               disabled={isLoading}
               className="text-base"
               autoFocus

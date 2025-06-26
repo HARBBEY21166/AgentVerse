@@ -17,9 +17,16 @@ const MessageSchema = z.object({
   content: z.string(),
 });
 
+const SettingsSchema = z.object({
+  agentName: z.string(),
+  agentRole: z.string(),
+  agentInstructions: z.string(),
+});
+
 const ChatInputSchema = z.object({
   history: z.array(MessageSchema),
   message: z.string(),
+  settings: SettingsSchema.optional(),
 });
 export type ChatInput = z.infer<typeof ChatInputSchema>;
 
@@ -68,8 +75,13 @@ const chatFlow = ai.defineFlow(
         content: [{text: msg.content}],
       }));
 
-      const systemPrompt = `You are a helpful AI assistant named AgentVerse.`;
-
+      let systemPrompt = `You are a helpful AI assistant named AgentVerse.`;
+      if (input.settings) {
+        systemPrompt = `You are an AI assistant named ${input.settings.agentName}. 
+Your role is: ${input.settings.agentRole}.
+Follow these instructions for every response: ${input.settings.agentInstructions}`;
+      }
+      
       const response = await ai.generate({
         model: 'googleai/gemini-2.0-flash',
         history: history,
