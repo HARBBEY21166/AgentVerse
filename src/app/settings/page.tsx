@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,31 +24,59 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
+const SETTINGS_KEY = 'agentSettings';
+
+const DEFAULT_SETTINGS = {
+  agentName: 'Marketing Maven',
+  agentRole: 'creative-writer',
+  agentInstructions:
+    'Always respond in a witty and engaging tone. Prioritize content that is shareable on social media.',
+  webBrowsing: true,
+  dataAnalysis: true,
+  codeExecution: false,
+};
+
 export default function SettingsPage() {
   const { toast } = useToast();
-  const [agentName, setAgentName] = useState('Marketing Maven');
-  const [agentRole, setAgentRole] = useState('creative-writer');
-  const [agentInstructions, setAgentInstructions] = useState(
-    'Always respond in a witty and engaging tone. Prioritize content that is shareable on social media.'
-  );
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const [webBrowsing, setWebBrowsing] = useState(true);
-  const [dataAnalysis, setDataAnalysis] = useState(true);
-  const [codeExecution, setCodeExecution] = useState(false);
+  useEffect(() => {
+    try {
+      const savedSettings = localStorage.getItem(SETTINGS_KEY);
+      if (savedSettings) {
+        setSettings(JSON.parse(savedSettings));
+      }
+    } catch (error) {
+      console.error('Failed to parse settings from localStorage', error);
+    }
+    setIsLoaded(true);
+  }, []);
 
-  const handleSavePersona = () => {
-    toast({
-      title: 'Persona Saved',
-      description: 'Your agent persona has been updated.',
-    });
+  const handleSave = (section: 'Persona' | 'Capabilities') => {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      toast({
+        title: `${section} Saved`,
+        description: `Your agent's ${section.toLowerCase()} has been updated.`,
+      });
+    } catch (error) {
+      console.error('Failed to save settings to localStorage', error);
+      toast({
+        title: 'Error',
+        description: 'Could not save settings.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleSaveCapabilities = () => {
-    toast({
-      title: 'Capabilities Saved',
-      description: "Your agent's capabilities have been updated.",
-    });
+  const handleValueChange = (key: keyof typeof DEFAULT_SETTINGS, value: string | boolean) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
   };
+  
+  if (!isLoaded) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <div className="flex h-screen flex-col">
@@ -68,13 +96,16 @@ export default function SettingsPage() {
                 <Input
                   id="agent-name"
                   placeholder="e.g., Marketing Maven"
-                  value={agentName}
-                  onChange={(e) => setAgentName(e.target.value)}
+                  value={settings.agentName}
+                  onChange={(e) => handleValueChange('agentName', e.target.value)}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="agent-role">Role</Label>
-                <Select value={agentRole} onValueChange={setAgentRole}>
+                <Select
+                  value={settings.agentRole}
+                  onValueChange={(value) => handleValueChange('agentRole', value)}
+                >
                   <SelectTrigger id="agent-role">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
@@ -101,14 +132,16 @@ export default function SettingsPage() {
                 <Textarea
                   id="agent-instructions"
                   placeholder="e.g., 'Always respond in a formal tone. Prioritize data from academic sources.'"
-                  value={agentInstructions}
-                  onChange={(e) => setAgentInstructions(e.target.value)}
+                  value={settings.agentInstructions}
+                  onChange={(e) =>
+                    handleValueChange('agentInstructions', e.target.value)
+                  }
                   rows={3}
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleSavePersona}>Save Persona</Button>
+              <Button onClick={() => handleSave('Persona')}>Save Persona</Button>
             </CardFooter>
           </Card>
 
@@ -131,8 +164,10 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   id="tool-web-browsing"
-                  checked={webBrowsing}
-                  onCheckedChange={setWebBrowsing}
+                  checked={settings.webBrowsing}
+                  onCheckedChange={(checked) =>
+                    handleValueChange('webBrowsing', checked)
+                  }
                 />
               </div>
               <div className="flex items-center justify-between rounded-lg border p-4">
@@ -146,8 +181,10 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   id="tool-data-analysis"
-                  checked={dataAnalysis}
-                  onCheckedChange={setDataAnalysis}
+                  checked={settings.dataAnalysis}
+                  onCheckedChange={(checked) =>
+                    handleValueChange('dataAnalysis', checked)
+                  }
                 />
               </div>
               <div className="flex items-center justify-between rounded-lg border p-4">
@@ -161,13 +198,15 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   id="tool-code-execution"
-                  checked={codeExecution}
-                  onCheckedChange={setCodeExecution}
+                  checked={settings.codeExecution}
+                  onCheckedChange={(checked) =>
+                    handleValueChange('codeExecution', checked)
+                  }
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleSaveCapabilities}>
+              <Button onClick={() => handleSave('Capabilities')}>
                 Save Capabilities
               </Button>
             </CardFooter>
