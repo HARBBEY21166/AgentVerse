@@ -94,9 +94,14 @@ export default function ChatPage() {
     <div className="flex h-screen flex-col">
       <AppHeader title="Chat" />
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6 lg:p-8">
+        <div
+          className={cn(
+            'mx-auto max-w-2xl space-y-6 p-4 md:p-6 lg:p-8',
+            messages.length === 0 && !isLoading && 'flex h-full flex-col'
+          )}
+        >
           {messages.length === 0 && !isLoading && (
-            <div className="flex h-[calc(100vh-12rem)] flex-col items-center justify-center text-center text-muted-foreground">
+            <div className="flex flex-1 flex-col items-center justify-center text-center text-muted-foreground">
               <Bot className="h-16 w-16" />
               <h2 className="mt-4 text-2xl font-semibold text-foreground">
                 Chat with {settings.agentName}
