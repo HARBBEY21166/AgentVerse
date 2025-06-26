@@ -1,10 +1,5 @@
-export type TaskStatus = 'pending' | 'running' | 'completed' | 'error';
-
-export interface Task {
+export interface Message {
   id: string;
-  description: string;
-  status: TaskStatus;
-  result?: string;
-  feedback?: string;
-  refinedApproach?: string;
+  role: 'user' | 'assistant';
+  content: string;
 }

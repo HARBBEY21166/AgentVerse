@@ -12,7 +12,7 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { Icons } from '@/components/icons';
-import { LayoutDashboard, Settings, UserCircle } from 'lucide-react';
+import { MessageSquare, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from './ui/separator';
 
@@ -35,11 +35,11 @@ export default function AppSidebar() {
             <SidebarMenuButton
               asChild
               isActive={pathname === '/'}
-              tooltip="Dashboard"
+              tooltip="Chat"
             >
               <Link href="/">
-                <LayoutDashboard />
-                <span>Dashboard</span>
+                <MessageSquare />
+                <span>Chat</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

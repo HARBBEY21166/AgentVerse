@@ -1,289 +1,162 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { formulatePlan } from '@/ai/flows/goal-formulation';
-import { taskExecutionFeedback } from '@/ai/flows/task-execution-feedback';
-import type { Task, TaskStatus } from '@/lib/types';
+import React, { useState, useRef, useEffect } from 'react';
+import { chat } from '@/ai/flows/chat';
+import type { Message } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AppHeader } from '@/components/app-header';
-import {
-  Bot,
-  CircleDashed,
-  Loader,
-  CheckCircle2,
-  XCircle,
-  Play,
-  BrainCircuit,
-  Lightbulb,
-} from 'lucide-react';
+import { Bot, Send, User, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
-const TaskStatusIcon = ({ status }: { status: TaskStatus }) => {
-  switch (status) {
-    case 'pending':
-      return <CircleDashed className="text-muted-foreground" />;
-    case 'running':
-      return <Loader className="animate-spin text-primary" />;
-    case 'completed':
-      return <CheckCircle2 className="text-green-500" />;
-    case 'error':
-      return <XCircle className="text-destructive" />;
-    default:
-      return <CircleDashed className="text-muted-foreground" />;
-  }
-};
-
-const TaskCard = ({
-  task,
-  onFeedbackSubmit,
-}: {
-  task: Task;
-  onFeedbackSubmit: (taskId: string, feedback: string, refinedApproach: string) => void;
-}) => {
-  const [feedback, setFeedback] = useState('');
-  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+export default function ChatPage() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!feedback.trim()) {
-      toast({
-        title: 'Feedback Required',
-        description: 'Please enter your feedback before submitting.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setIsSubmittingFeedback(true);
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: input,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
     try {
-      const result = await taskExecutionFeedback({
-        taskId: task.id,
-        taskDescription: task.description,
-        completionResult: task.result || 'No result generated.',
-        feedback,
+      const historyForApi = messages.map((msg) => ({
+        role: msg.role === 'user' ? ('user' as const) : ('model' as const),
+        content: msg.content,
+      }));
+
+      const result = await chat({
+        history: historyForApi,
+        message: input,
       });
-      onFeedbackSubmit(task.id, feedback, result.refinedApproach);
+
+      const assistantMessage: Message = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: result.message,
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      console.error('Error getting chat response:', error);
       toast({
         title: 'Error',
-        description: 'Failed to submit feedback. Please try again.',
+        description: 'Failed to get a response. Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setIsSubmittingFeedback(false);
-    }
-  };
-
-  return (
-    <Card className="transition-all hover:shadow-md">
-      <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-4">
-        <TaskStatusIcon status={task.status} />
-        <div className="flex-1">
-          <CardTitle className="text-base font-medium">{task.description}</CardTitle>
-        </div>
-        <Badge variant={task.status === 'completed' ? 'secondary' : 'outline'} className="capitalize">
-          {task.status}
-        </Badge>
-      </CardHeader>
-      {task.status === 'completed' && (
-        <CardContent className="space-y-4 pl-14">
-          <div>
-            <h4 className="font-semibold text-sm mb-1 text-muted-foreground">Execution Result</h4>
-            <p className="text-sm p-3 bg-muted/50 rounded-md">{task.result}</p>
-          </div>
-          {task.refinedApproach ? (
-            <div>
-              <h4 className="font-semibold text-sm mb-1 text-muted-foreground flex items-center gap-2">
-                <Lightbulb className="w-4 h-4" />
-                Refined Approach
-              </h4>
-              <p className="text-sm p-3 bg-accent/20 border border-accent/50 rounded-md">
-                {task.refinedApproach}
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleFeedbackSubmit} className="space-y-2">
-              <Label htmlFor={`feedback-${task.id}`} className="font-semibold text-sm text-muted-foreground">
-                Provide Feedback to Refine Agent
-              </Label>
-              <Textarea
-                id={`feedback-${task.id}`}
-                placeholder="e.g., 'Try using a different library for data analysis.'"
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                disabled={isSubmittingFeedback}
-              />
-              <Button type="submit" size="sm" disabled={isSubmittingFeedback}>
-                {isSubmittingFeedback && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-                Submit Feedback
-              </Button>
-            </form>
-          )}
-        </CardContent>
-      )}
-    </Card>
-  );
-};
-
-export default function AgentVersePage() {
-  const [objective, setObjective] = useState('');
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [currentTaskIndex, setCurrentTaskIndex] = useState<number | null>(null);
-  const { toast } = useToast();
-
-  const handleGoalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!objective.trim()) {
-      toast({ title: 'Objective is empty', description: 'Please enter a goal for the agent.', variant: 'destructive' });
-      return;
-    }
-    setIsLoading(true);
-    setTasks([]);
-    try {
-      const result = await formulatePlan({ objective });
-      const taskDescriptions = result.plan.split('\n').filter(line => line.trim().startsWith('- ')).map(line => line.substring(2).trim());
-      
-      if (taskDescriptions.length === 0) {
-        toast({ title: 'No tasks generated', description: 'The AI could not formulate a plan. Try rephrasing your objective.', variant: 'destructive' });
-        setTasks([]);
-      } else {
-        setTasks(
-          taskDescriptions.map((desc, index) => ({
-            id: `task-${Date.now()}-${index}`,
-            description: desc,
-            status: 'pending',
-          }))
-        );
-      }
-
-    } catch (error) {
-      console.error('Error formulating plan:', error);
-      toast({ title: 'Error', description: 'Failed to formulate a plan. Please try again.', variant: 'destructive' });
+      setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleExecute = () => {
-    setIsExecuting(true);
-    setCurrentTaskIndex(0);
-  };
-  
-  const handleFeedbackSubmit = useCallback((taskId: string, feedback: string, refinedApproach: string) => {
-      setTasks(currentTasks => currentTasks.map(t => 
-        t.id === taskId ? { ...t, feedback, refinedApproach } : t
-      ));
-      toast({ title: "Feedback Received", description: "The agent's approach has been updated." });
-  }, [toast]);
-
-
-  useEffect(() => {
-    if (isExecuting && currentTaskIndex !== null && currentTaskIndex < tasks.length) {
-      setTasks(currentTasks =>
-        currentTasks.map((task, index) =>
-          index === currentTaskIndex ? { ...task, status: 'running' } : task
-        )
-      );
-
-      const timeoutId = setTimeout(() => {
-        setTasks(currentTasks =>
-          currentTasks.map((task, index) =>
-            index === currentTaskIndex
-              ? {
-                  ...task,
-                  status: 'completed',
-                  result: `Successfully completed: '${task.description}'. A mock report has been generated.`,
-                }
-              : task
-          )
-        );
-
-        if (currentTaskIndex + 1 < tasks.length) {
-          setCurrentTaskIndex(currentTaskIndex + 1);
-        } else {
-          setIsExecuting(false);
-          setCurrentTaskIndex(null);
-          toast({ title: 'Execution Complete', description: 'All tasks have been successfully executed.' });
-        }
-      }, 2000 + Math.random() * 1500); // Simulate work
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isExecuting, currentTaskIndex, tasks.length, toast]);
-
   return (
     <div className="flex h-screen flex-col">
-      <AppHeader title="Dashboard" />
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-        <div className="mx-auto max-w-4xl space-y-8">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <BrainCircuit className="h-6 w-6 text-primary" />
-                Define Your Agent's Goal
-              </CardTitle>
-              <CardDescription>
-                Enter a high-level objective and our AI agent will create and execute a plan.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleGoalSubmit} className="flex gap-2">
-                <Input
-                  placeholder="e.g., 'Analyze market trends for AI startups in Europe'"
-                  value={objective}
-                  onChange={(e) => setObjective(e.target.value)}
-                  disabled={isLoading || isExecuting}
-                  className="text-base"
-                />
-                <Button type="submit" disabled={isLoading || isExecuting}>
-                  {isLoading ? (
-                    <Loader className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Bot className="mr-2 h-4 w-4" />
-                  )}
-                  Formulate Plan
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-          
-          {(isLoading || tasks.length > 0) && (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Execution Plan</CardTitle>
-                  <CardDescription>The agent will follow these steps to achieve the objective.</CardDescription>
-                </div>
-                {tasks.length > 0 && !isExecuting && (
-                  <Button onClick={handleExecute} disabled={currentTaskIndex !== null}>
-                    <Play className="mr-2 h-4 w-4" />
-                    Execute Plan
-                  </Button>
-                )}
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {isLoading ? (
-                    <>
-                      <Skeleton className="h-16 w-full" />
-                      <Skeleton className="h-16 w-full" />
-                      <Skeleton className="h-16 w-full" />
-                    </>
-                  ) : (
-                    tasks.map((task) => <TaskCard key={task.id} task={task} onFeedbackSubmit={handleFeedbackSubmit} />)
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+      <AppHeader title="Chat" />
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6 lg:p-8">
+          {messages.length === 0 && !isLoading && (
+            <div className="flex h-[calc(100vh-12rem)] flex-col items-center justify-center text-center text-muted-foreground">
+              <Bot className="h-16 w-16" />
+              <h2 className="mt-4 text-2xl font-semibold text-foreground">
+                AgentVerse Chat
+              </h2>
+              <p className="mt-2">
+                Start a conversation by typing a message below.
+              </p>
+            </div>
           )}
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={cn(
+                'flex items-start gap-4',
+                message.role === 'user' ? 'justify-end' : 'justify-start'
+              )}
+            >
+              {message.role === 'assistant' && (
+                <Avatar className="h-8 w-8 border">
+                  <AvatarFallback>
+                    <Bot className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              <div
+                className={cn(
+                  'max-w-prose rounded-lg p-3 text-sm shadow-sm',
+                  message.role === 'user'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card border'
+                )}
+              >
+                <p className="whitespace-pre-wrap">{message.content}</p>
+              </div>
+              {message.role === 'user' && (
+                <Avatar className="h-8 w-8 border">
+                  <AvatarImage
+                    src="https://placehold.co/40x40.png"
+                    alt="@user"
+                    data-ai-hint="user avatar"
+                  />
+                  <AvatarFallback>
+                    <User className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
+              )}
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex items-start gap-4 justify-start">
+              <Avatar className="h-8 w-8 border">
+                <AvatarFallback>
+                  <Bot className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="max-w-md rounded-lg p-3 bg-card border shadow-sm">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      <div className="border-t bg-background">
+        <div className="mx-auto max-w-2xl p-4">
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Message AgentVerse..."
+              disabled={isLoading}
+              className="text-base"
+              autoFocus
+            />
+            <Button
+              type="submit"
+              disabled={isLoading || !input.trim()}
+              size="icon"
+              aria-label="Send message"
+            >
+              <Send className="h-5 w-5" />
+            </Button>
+          </form>
         </div>
       </div>
     </div>
