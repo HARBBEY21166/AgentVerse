@@ -13,15 +13,18 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Icons } from '@/components/icons';
-import { MessageSquare, Settings, Code, Plus, Trash2 } from 'lucide-react';
+import { MessageSquare, Settings, Code, Plus, Trash2, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useChatHistory } from '@/lib/chat-history';
 import { Skeleton } from './ui/skeleton';
+import { Button } from './ui/button';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { conversations, deleteConversation, isLoading } = useChatHistory();
+  const { setTheme, theme } = useTheme();
   
   const conversationId = pathname.startsWith('/chat/') ? pathname.split('/').pop() : null;
 
@@ -118,6 +121,37 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-2">
+         <div className="flex w-full justify-center p-2 group-data-[collapsible=icon]:hidden">
+            <div className="rounded-md border p-1 flex items-center">
+              <Button 
+                variant={theme === 'light' ? 'secondary' : 'ghost'} 
+                size="icon" 
+                onClick={() => setTheme('light')}
+                className="h-7 w-7"
+              >
+                <Sun className="h-5 w-5" />
+              </Button>
+              <Button 
+                variant={theme === 'dark' ? 'secondary' : 'ghost'} 
+                size="icon" 
+                onClick={() => setTheme('dark')}
+                className="h-7 w-7"
+              >
+                <Moon className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+          <div className="hidden justify-center p-2 group-data-[collapsible=icon]:flex">
+            {theme === 'light' ? (
+              <Button variant="ghost" size="icon" onClick={() => setTheme('dark')} className="h-8 w-8">
+                <Moon className="h-5 w-5" />
+              </Button>
+            ) : (
+              <Button variant="ghost" size="icon" onClick={() => setTheme('light')} className="h-8 w-8">
+                <Sun className="h-5 w-5" />
+              </Button>
+            )}
+          </div>
         <SidebarSeparator />
         <SidebarMenu>
           <SidebarMenuItem>
