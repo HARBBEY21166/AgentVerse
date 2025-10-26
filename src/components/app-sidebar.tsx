@@ -16,11 +16,12 @@ import { Icons } from '@/components/icons';
 import { MessageSquare, Settings, Code, Plus, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useChatHistory } from '@/lib/chat-history';
+import { Skeleton } from './ui/skeleton';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { conversations, deleteConversation } = useChatHistory();
+  const { conversations, deleteConversation, isLoading } = useChatHistory();
   
   const conversationId = pathname.startsWith('/chat/') ? pathname.split('/').pop() : null;
 
@@ -57,27 +58,35 @@ export default function AppSidebar() {
         <SidebarSeparator />
         <div className="flex-1 overflow-y-auto">
           <SidebarMenu>
-            {conversations.map((conv) => (
-              <SidebarMenuItem key={conv.id} className="group/item relative">
-                <SidebarMenuButton
-                  asChild
-                  isActive={conversationId === conv.id}
-                  tooltip={conv.title}
-                >
-                  <Link href={`/chat/${conv.id}`}>
-                    <MessageSquare />
-                    <span className="truncate pr-6">{conv.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-                <button
-                  onClick={(e) => handleDelete(e, conv.id)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground opacity-0 group-hover/item:opacity-100 hover:bg-destructive/10 hover:text-destructive group-data-[collapsible=icon]:hidden"
-                  aria-label="Delete chat"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </SidebarMenuItem>
-            ))}
+            {isLoading ? (
+               <div className="space-y-2 px-1">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+               </div>
+            ) : (
+              conversations.map((conv) => (
+                <SidebarMenuItem key={conv.id} className="group/item relative">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={conversationId === conv.id}
+                    tooltip={conv.title}
+                  >
+                    <Link href={`/chat/${conv.id}`}>
+                      <MessageSquare />
+                      <span className="truncate pr-6">{conv.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <button
+                    onClick={(e) => handleDelete(e, conv.id)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground opacity-0 group-hover/item:opacity-100 hover:bg-destructive/10 hover:text-destructive group-data-[collapsible=icon]:hidden"
+                    aria-label="Delete chat"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </SidebarMenuItem>
+              ))
+            )}
           </SidebarMenu>
         </div>
         <SidebarSeparator />

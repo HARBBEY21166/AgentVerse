@@ -7,6 +7,7 @@ import { CHAT_HISTORY_KEY, ChatHistoryContext } from '@/lib/chat-history';
 export const ChatHistoryProvider = ({ children }: { children: React.ReactNode }) => {
   const [allConversations, setAllConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     try {
@@ -16,10 +17,13 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
       }
     } catch (error) {
       console.error("Failed to load chat history from localStorage", error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    if (isLoading) return;
     try {
       if (allConversations.length > 0) {
         localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(allConversations));
@@ -29,7 +33,7 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
     } catch (error) {
       console.error("Failed to save chat history to localStorage", error);
     }
-  }, [allConversations]);
+  }, [allConversations, isLoading]);
   
   const loadConversation = useCallback((id: string) => {
     const conversation = allConversations.find(c => c.id === id) || null;
@@ -83,6 +87,7 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
   const contextValue = { 
       conversations: conversationsForSidebar,
       activeConversation,
+      isLoading,
       loadConversation,
       startNewChat, 
       updateActiveConversation,

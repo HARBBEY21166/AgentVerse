@@ -8,6 +8,7 @@ export const CHAT_HISTORY_KEY = 'chatHistory';
 export interface ChatHistoryContextType {
   conversations: Omit<Conversation, 'messages'>[];
   activeConversation: Conversation | null;
+  isLoading: boolean;
   loadConversation: (id: string) => void;
   startNewChat: () => string;
   updateActiveConversation: (messages: Message[]) => void;
