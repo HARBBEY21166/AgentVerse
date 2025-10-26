@@ -13,7 +13,6 @@ import {
   SidebarFooter,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
-import { Icons } from '@/components/icons';
 import { MessageSquare, Settings, Code, Plus, Trash2, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -93,7 +92,7 @@ export default function AppSidebar() {
     <Sidebar className="border-r" collapsible="icon">
       <SidebarHeader>
         <Link href="/" className="flex items-center gap-2">
-          <Icons.logo className="h-8 w-8 text-primary" />
+          <img width="32" height="32" src="https://img.icons8.com/ink/48/chatbot.png" alt="chatbot"/>
           <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
             AgentVerse
           </span>

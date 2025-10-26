@@ -263,7 +263,7 @@ export default function ChatPage() {
                 {message.role === 'user' && (
                   <Avatar className="h-8 w-8 border">
                     <AvatarImage
-                      src="https://placehold.co/40x40.png"
+                      src="https://i.pinimg.com/1200x/d0/fd/68/d0fd686d9f97f4c8ee97e6f722f06ccc.jpg"
                       alt="@user"
                       data-ai-hint="user avatar"
                     />
