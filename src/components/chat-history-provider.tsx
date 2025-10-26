@@ -42,6 +42,10 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
 
   const startNewChat = useCallback(() => {
     const newId = `chat-${Date.now()}`;
+    // Check if a chat with this ID already exists to prevent duplicates from rapid clicks
+    if (allConversations.some(c => c.id === newId)) {
+       return allConversations.find(c => c.id === newId)!.id;
+    }
     const newConversation: Conversation = { 
       id: newId, 
       title: 'New Chat', 
@@ -50,7 +54,7 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
     setAllConversations(prev => [newConversation, ...prev]);
     setActiveConversation(newConversation);
     return newId;
-  }, []);
+  }, [allConversations]);
 
   const updateActiveConversation = useCallback((messages: Message[]) => {
     if (!activeConversation) return;
@@ -101,3 +105,5 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
     </ChatHistoryContext.Provider>
   );
 };
+
+    

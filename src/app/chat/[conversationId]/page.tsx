@@ -31,7 +31,7 @@ export default function ChatPage() {
   const params = useParams();
   const conversationId = params.conversationId as string;
   
-  const { activeConversation, loadConversation, updateActiveConversation } = useChatHistory();
+  const { activeConversation, loadConversation, updateActiveConversation, isLoading: isHistoryLoading } = useChatHistory();
   const messages = activeConversation?.messages || [];
 
   const [input, setInput] = useState('');
@@ -145,7 +145,7 @@ export default function ChatPage() {
     }
   };
 
-  if (!activeConversation) {
+  if (isHistoryLoading) {
      return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -186,10 +186,11 @@ export default function ChatPage() {
                 )}
                 <div
                   className={cn(
-                    'max-w-prose rounded-lg p-3 text-sm shadow-sm w-full',
+                    'max-w-prose rounded-lg p-3 text-sm shadow-sm',
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground w-auto'
-                      : 'bg-card border'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card border',
+                     !message.code && 'w-auto'
                   )}
                 >
                   <p className="whitespace-pre-wrap">{message.content}</p>
@@ -256,7 +257,7 @@ export default function ChatPage() {
       </div>
 
       <div className="border-t bg-background">
-        <div className="mx-auto max-w-4xl p-4">
+        <div className="mx-auto w-full max-w-4xl p-4">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
               value={input}
