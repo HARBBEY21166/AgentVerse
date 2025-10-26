@@ -57,22 +57,26 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
   }, [allConversations]);
 
   const updateActiveConversation = useCallback((messages: Message[]) => {
-    if (!activeConversation) return;
+    setActiveConversation(prevActive => {
+      if (!prevActive) return null;
 
-    let newTitle = activeConversation.title;
-    if (activeConversation.messages.length === 0 && messages.length > 0) {
-      const firstUserMessage = messages.find(m => m.role === 'user');
-      if (firstUserMessage) {
-        newTitle = firstUserMessage.content.substring(0, 35) + (firstUserMessage.content.length > 35 ? '...' : '');
+      let newTitle = prevActive.title;
+      if (prevActive.messages.length === 0 && messages.length > 0) {
+        const firstUserMessage = messages.find(m => m.role === 'user');
+        if (firstUserMessage) {
+          newTitle = firstUserMessage.content.substring(0, 35) + (firstUserMessage.content.length > 35 ? '...' : '');
+        }
       }
-    }
 
-    const updatedConversation = { ...activeConversation, messages, title: newTitle };
-    setActiveConversation(updatedConversation);
-    setAllConversations(prev => 
-      prev.map(c => c.id === activeConversation.id ? updatedConversation : c)
-    );
-  }, [activeConversation]);
+      const updatedConversation = { ...prevActive, messages, title: newTitle };
+      
+      setAllConversations(prevAll => 
+        prevAll.map(c => c.id === prevActive.id ? updatedConversation : c)
+      );
+
+      return updatedConversation;
+    });
+  }, []);
 
   const deleteConversation = useCallback((id: string) => {
     setAllConversations(prev => prev.filter(c => c.id !== id));
@@ -105,5 +109,3 @@ export const ChatHistoryProvider = ({ children }: { children: React.ReactNode })
     </ChatHistoryContext.Provider>
   );
 };
-
-    
