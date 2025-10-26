@@ -1,9 +1,23 @@
+
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useChatHistory } from '@/lib/chat-history';
-import { Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { AppHeader } from '@/components/app-header';
+
+
+function NewChatSkeleton() {
+  return (
+    <div className="flex h-screen w-full items-center justify-center">
+       <div className="flex flex-col items-center gap-4">
+         <p className="text-muted-foreground">Starting new chat...</p>
+         <Skeleton className="h-8 w-48" />
+       </div>
+    </div>
+  );
+}
 
 export default function NewChatPage() {
   const router = useRouter();
@@ -14,9 +28,7 @@ export default function NewChatPage() {
     router.replace(`/chat/${newChatId}`);
   }, [startNewChat, router]);
 
-  return (
-    <div className="flex h-screen w-full items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin" />
-    </div>
-  );
+  return <NewChatSkeleton />;
 }
+
+    

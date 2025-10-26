@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -11,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { generateCode } from '@/ai/flows/generate-code';
 import { LiveProvider, LiveEditor, LivePreview, LiveError } from 'react-live';
 import { themes } from 'prism-react-renderer';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 // Scope for react-live
 import * as LucideIcons from 'lucide-react';
@@ -161,8 +164,10 @@ function SandboxComponent() {
               </CardHeader>
               <CardContent className="flex-1 bg-muted/20 rounded-b-lg border flex flex-col items-stretch justify-stretch p-4 relative overflow-auto">
                 {isLoading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <div className="flex flex-col items-center justify-center h-full gap-4">
+                     <p className="text-muted-foreground">Generating preview...</p>
+                     <Skeleton className="w-full h-48 rounded-lg" />
+                     <Skeleton className="w-full h-24 rounded-lg" />
                   </div>
                 ) : (
                   <>
@@ -194,8 +199,10 @@ function SandboxComponent() {
 
 export default function SandboxPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><p>Loading Sandbox...</p></div>}>
       <SandboxComponent />
     </Suspense>
   )
 }
+
+    

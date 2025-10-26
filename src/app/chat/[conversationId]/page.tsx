@@ -26,6 +26,46 @@ import { useChatHistory } from '@/lib/chat-history';
 import { CodeBlock } from '@/components/code-block';
 import { Skeleton } from '@/components/ui/skeleton';
 
+function ChatSkeleton() {
+  return (
+    <div className="flex h-screen flex-col">
+      <AppHeader title="Chat" />
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+        <div className="mx-auto w-full max-w-2xl space-y-6 lg:max-w-4xl">
+          <div className="flex w-full items-start gap-4">
+            <Skeleton className="h-8 w-8 rounded-full" />
+            <div className="w-full max-w-prose space-y-2 rounded-lg bg-card p-3 shadow-sm border">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+            </div>
+          </div>
+          <div className="flex w-full items-start gap-4 justify-end">
+             <div className="w-full max-w-prose space-y-2 rounded-lg bg-primary p-3 shadow-sm">
+                <Skeleton className="h-4 w-full" />
+             </div>
+            <Skeleton className="h-8 w-8 rounded-full" />
+          </div>
+           <div className="flex w-full items-start gap-4">
+            <Skeleton className="h-8 w-8 rounded-full" />
+            <div className="w-full max-w-prose space-y-2 rounded-lg bg-card p-3 shadow-sm border">
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          </div>
+        </div>
+      </div>
+       <div className="border-t bg-background">
+        <div className="mx-auto w-full max-w-4xl p-4">
+          <div className="flex gap-2">
+            <Skeleton className="h-10 flex-1" />
+            <Skeleton className="h-10 w-10" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 export default function ChatPage() {
   const router = useRouter();
   const params = useParams();
@@ -146,11 +186,7 @@ export default function ChatPage() {
   };
 
   if (isHistoryLoading) {
-     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+     return <ChatSkeleton />;
   }
 
   return (
