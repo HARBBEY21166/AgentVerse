@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -23,6 +24,7 @@ import type { AgentSettings } from '@/lib/settings';
 import { SETTINGS_KEY, DEFAULT_SETTINGS } from '@/lib/settings';
 import { useChatHistory } from '@/lib/chat-history';
 import { CodeBlock } from '@/components/code-block';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ChatPage() {
   const router = useRouter();
@@ -243,8 +245,9 @@ export default function ChatPage() {
                   <Bot className="h-5 w-5" />
                 </AvatarFallback>
               </Avatar>
-              <div className="max-w-md rounded-lg bg-card p-3 shadow-sm border">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <div className="w-full max-w-prose space-y-2 rounded-lg bg-card p-3 shadow-sm border">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
               </div>
             </div>
           )}
@@ -277,3 +280,5 @@ export default function ChatPage() {
     </div>
   );
 }
+
+    
