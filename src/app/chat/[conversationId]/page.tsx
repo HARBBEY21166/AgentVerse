@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { AgentSettings } from '@/lib/settings';
 import { SETTINGS_KEY, DEFAULT_SETTINGS } from '@/lib/settings';
 import { useChatHistory } from '@/lib/chat-history';
+import { CodeBlock } from '@/components/code-block';
 
 export default function ChatPage() {
   const router = useRouter();
@@ -156,7 +157,7 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
         <div className="mx-auto w-full max-w-2xl space-y-6 lg:max-w-4xl">
           {messages.length === 0 && !isLoading ? (
-            <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground">
+            <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground pt-16">
               <Bot className="h-16 w-16" />
               <h2 className="mt-4 text-2xl font-semibold text-foreground">
                 Chat with {settings.agentName}
@@ -171,7 +172,7 @@ export default function ChatPage() {
                 key={message.id}
                 className={cn(
                   'flex w-full items-start gap-4',
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                  message.role === 'user' ? 'justify-end' : ''
                 )}
               >
                 {message.role === 'assistant' && (
@@ -183,21 +184,18 @@ export default function ChatPage() {
                 )}
                 <div
                   className={cn(
-                    'max-w-prose rounded-lg p-3 text-sm shadow-sm',
+                    'max-w-prose rounded-lg p-3 text-sm shadow-sm w-full',
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-primary text-primary-foreground w-auto'
                       : 'bg-card border'
                   )}
                 >
                   <p className="whitespace-pre-wrap">{message.content}</p>
                   {message.code && (
-                    <div className="mt-4">
-                      <pre className="overflow-x-auto rounded-md bg-muted p-4 font-code">
-                        <code>{message.code}</code>
-                      </pre>
+                    <div className="mt-4 space-y-2">
+                      <CodeBlock code={message.code} />
                       <Button
                         onClick={() => handleOpenInSandbox(message.code!)}
-                        className="mt-2"
                         variant="outline"
                         size="sm"
                       >
