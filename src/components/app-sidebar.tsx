@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
@@ -19,12 +20,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useChatHistory } from '@/lib/chat-history';
 import { Skeleton } from './ui/skeleton';
 import { Button } from './ui/button';
+import { useEffect, useState } from 'react';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { conversations, deleteConversation, isLoading } = useChatHistory();
   const { setTheme, theme } = useTheme();
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   const conversationId = pathname.startsWith('/chat/') ? pathname.split('/').pop() : null;
 
@@ -35,6 +42,51 @@ export default function AppSidebar() {
     if (pathname === `/chat/${id}`) {
       router.replace('/');
     }
+  };
+
+  const renderThemeToggle = () => {
+    if (!isMounted) {
+      return (
+        <div className="flex w-full justify-center p-2 group-data-[collapsible=icon]:hidden">
+          <Skeleton className="h-9 w-[76px] rounded-md" />
+        </div>
+      );
+    }
+    return (
+      <>
+        <div className="flex w-full justify-center p-2 group-data-[collapsible=icon]:hidden">
+          <div className="rounded-md border p-1 flex items-center">
+            <Button
+              variant={theme === 'light' ? 'secondary' : 'ghost'}
+              size="icon"
+              onClick={() => setTheme('light')}
+              className="h-7 w-7"
+            >
+              <Sun className="h-5 w-5" />
+            </Button>
+            <Button
+              variant={theme === 'dark' ? 'secondary' : 'ghost'}
+              size="icon"
+              onClick={() => setTheme('dark')}
+              className="h-7 w-7"
+            >
+              <Moon className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+        <div className="hidden justify-center p-2 group-data-[collapsible=icon]:flex">
+          {theme === 'light' ? (
+            <Button variant="ghost" size="icon" onClick={() => setTheme('dark')} className="h-8 w-8">
+              <Moon className="h-5 w-5" />
+            </Button>
+          ) : (
+            <Button variant="ghost" size="icon" onClick={() => setTheme('light')} className="h-8 w-8">
+              <Sun className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
+      </>
+    );
   };
 
   return (
@@ -121,37 +173,7 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-2">
-         <div className="flex w-full justify-center p-2 group-data-[collapsible=icon]:hidden">
-            <div className="rounded-md border p-1 flex items-center">
-              <Button 
-                variant={theme === 'light' ? 'secondary' : 'ghost'} 
-                size="icon" 
-                onClick={() => setTheme('light')}
-                className="h-7 w-7"
-              >
-                <Sun className="h-5 w-5" />
-              </Button>
-              <Button 
-                variant={theme === 'dark' ? 'secondary' : 'ghost'} 
-                size="icon" 
-                onClick={() => setTheme('dark')}
-                className="h-7 w-7"
-              >
-                <Moon className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-          <div className="hidden justify-center p-2 group-data-[collapsible=icon]:flex">
-            {theme === 'light' ? (
-              <Button variant="ghost" size="icon" onClick={() => setTheme('dark')} className="h-8 w-8">
-                <Moon className="h-5 w-5" />
-              </Button>
-            ) : (
-              <Button variant="ghost" size="icon" onClick={() => setTheme('light')} className="h-8 w-8">
-                <Sun className="h-5 w-5" />
-              </Button>
-            )}
-          </div>
+        {renderThemeToggle()}
         <SidebarSeparator />
         <SidebarMenu>
           <SidebarMenuItem>
