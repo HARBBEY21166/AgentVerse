@@ -40,6 +40,8 @@ export default {
         accent: {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))',
+          'gradient-start': '#C61AFF',
+          'gradient-end': '#9333ea', // a slightly darker purple for the gradient
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',

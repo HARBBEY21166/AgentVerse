@@ -10,7 +10,7 @@
     --card-foreground: 220 20% 15%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 15%;
-    --primary: 225 23% 60%;
+    --primary: 285 100% 55%;
     --primary-foreground: 0 0% 100%;
     --secondary: 220 13% 90%;
     --secondary-foreground: 220 20% 15%;
@@ -31,12 +31,12 @@
     --radius: 0.5rem;
     --sidebar-background: 220 13% 98%;
     --sidebar-foreground: 220 20% 25%;
-    --sidebar-primary: 225 23% 60%;
+    --sidebar-primary: 285 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 13% 92%;
     --sidebar-accent-foreground: 220 20% 15%;
     --sidebar-border: 220 13% 88%;
-    --sidebar-ring: 225 23% 60%;
+    --sidebar-ring: 285 100% 55%;
   }
   .dark {
     --background: 220 15% 10%;
@@ -45,7 +45,7 @@
     --card-foreground: 220 13% 95%;
     --popover: 220 15% 10%;
     --popover-foreground: 220 13% 95%;
-    --primary: 225 23% 60%;
+    --primary: 285 100% 55%;
     --primary-foreground: 0 0% 100%;
     --secondary: 220 15% 20%;
     --secondary-foreground: 220 13% 95%;
@@ -65,12 +65,12 @@
     --chart-5: 340 75% 55%;
     --sidebar-background: 220 15% 10%;
     --sidebar-foreground: 220 13% 95%;
-    --sidebar-primary: 225 23% 60%;
+    --sidebar-primary: 285 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 15% 15%;
     --sidebar-accent-foreground: 220 13% 95%;
     --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 225 23% 60%;
+    --sidebar-ring: 285 100% 55%;
   }
 }
 
@@ -80,5 +80,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .btn-gradient {
+    background-size: 200% 100%;
+    transition: background-position 0.3s ease-in-out;
+  }
+  .btn-gradient:hover {
+    background-position: -100% 0;
   }
 }
