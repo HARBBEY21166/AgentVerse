@@ -214,7 +214,7 @@ export default function ChatPage() {
                 )}
               >
                 {message.role === 'assistant' && (
-                  <Avatar className="h-8 w-8 border">
+                  <Avatar className="h-8 w-8 border flex-shrink-0">
                     <AvatarFallback>
                       <Bot className="h-5 w-5" />
                     </AvatarFallback>
@@ -260,7 +260,7 @@ export default function ChatPage() {
                   </Button>
                 )}
                 {message.role === 'user' && (
-                  <Avatar className="h-8 w-8 border">
+                  <Avatar className="h-8 w-8 border flex-shrink-0">
                     <AvatarImage
                       src="https://i.pinimg.com/1200x/d0/fd/68/d0fd686d9f97f4c8ee97e6f722f06ccc.jpg"
                       alt="@user"
