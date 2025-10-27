@@ -10,8 +10,9 @@ import { ThemeProvider } from '@/components/theme-provider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'AgentVerse',
-  description: 'A fully functional AI Agent',
+  title: 'AgentVerse - Your Launchpad for Custom AI Agents',
+  description:
+    'Create and interact with sophisticated AI agents. Built with Next.js, Genkit, and ShadCN UI, AgentVerse is a fully-functional starting point for your next AI-powered application.',
 };
 
 export default function RootLayout({
