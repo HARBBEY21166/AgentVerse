@@ -34,7 +34,7 @@ That's it! Your AgentVerse application is now running locally on port `9002`.
 
 You've successfully launched AgentVerse. Now the fun begins. Here’s a roadmap to get you acquainted with your new AI-powered creation:
 
-1.  **Start a Conversation:** Open your browser to `http://localhost:9002` and start a new chat. Get a feel for the default agent's personality.
+1.  **Start a Conversation:** Open your browser and start a new chat. Get a feel for the default agent's personality.
 2.  **Generate Code:** Ask your agent to create a UI component. For example: *"Create a login form with a password visibility toggle."* Then, open the generated code in the **Sandbox** to see it come to life instantly.
 3.  **Customize Your Agent:** Navigate to the **Settings** page. This is where you take control. Give your agent a new name, a unique role (like "Sarcastic Code Reviewer"), and custom instructions. Go back to the chat and see how its personality has transformed.
 4.  **Dive into the Code:**
@@ -59,3 +59,8 @@ This is just the beginning. The future of software is intelligent, and AgentVers
 We built AgentVerse to be the open, flexible, and powerful platform we always wanted. Now, it's yours. Fork it, build on it, and show us what you create.
 
 **Welcome to the new era of AI development. Welcome to AgentVerse.**
+
+---
+
+*Built with ❤️ by Abiodun (Abbey) Aina*
+
