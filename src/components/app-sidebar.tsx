@@ -39,6 +39,8 @@ export default function AppSidebar() {
         const savedProfile = localStorage.getItem(USER_PROFILE_KEY);
         if (savedProfile) {
           setProfile({ ...DEFAULT_USER_PROFILE, ...JSON.parse(savedProfile) });
+        } else {
+          setProfile(DEFAULT_USER_PROFILE);
         }
       } catch (error) {
         console.error('Failed to parse profile from localStorage', error);
@@ -110,9 +112,10 @@ export default function AppSidebar() {
   };
   
   const getInitials = (name: string) => {
+    if (!name) return '';
     const names = name.split(' ');
     if (names.length > 1) {
-      return names[0][0] + names[names.length - 1][0];
+      return (names[0][0] || '') + (names[names.length - 1][0] || '');
     }
     return name.substring(0, 2);
   }
@@ -121,7 +124,12 @@ export default function AppSidebar() {
     <Sidebar className="border-r" collapsible="icon">
       <SidebarHeader>
         <Link href="/" className="flex items-center gap-2">
-          <img width="32" height="32" src="https://img.icons8.com/ink/48/chatbot.png" alt="chatbot"/>
+          <img
+            width="48"
+            height="48"
+            src="https://img.icons8.com/ink/48/chatbot.png"
+            alt="chatbot"
+          />
           <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
             AgentVerse
           </span>
