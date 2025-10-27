@@ -222,11 +222,10 @@ export default function ChatPage() {
                 )}
                 <div
                   className={cn(
-                    'max-w-prose rounded-lg p-3 text-sm shadow-sm',
+                    'max-w-prose rounded-lg p-3 text-sm shadow-sm w-full',
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
-                      : 'bg-card border',
-                     !message.code && 'w-auto'
+                      : 'bg-card border flex-grow'
                   )}
                 >
                   <p className="whitespace-pre-wrap">{message.content}</p>
@@ -317,5 +316,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
-    
