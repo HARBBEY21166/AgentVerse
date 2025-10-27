@@ -1,5 +1,6 @@
 
 export const SETTINGS_KEY = 'agentSettings';
+export const USER_PROFILE_KEY = 'userProfile';
 
 export const DEFAULT_SETTINGS = {
   agentName: 'AgentVerse',
@@ -8,3 +9,9 @@ export const DEFAULT_SETTINGS = {
 };
 
 export type AgentSettings = typeof DEFAULT_SETTINGS;
+
+export const DEFAULT_USER_PROFILE = {
+  name: 'Abiodun Abbey Aina',
+};
+
+export type UserProfile = typeof DEFAULT_USER_PROFILE;

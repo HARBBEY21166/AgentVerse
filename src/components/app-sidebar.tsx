@@ -20,6 +20,8 @@ import { useChatHistory } from '@/lib/chat-history';
 import { Skeleton } from './ui/skeleton';
 import { Button } from './ui/button';
 import { useEffect, useState } from 'react';
+import type { UserProfile } from '@/lib/settings';
+import { USER_PROFILE_KEY, DEFAULT_USER_PROFILE } from '@/lib/settings';
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -27,9 +29,28 @@ export default function AppSidebar() {
   const { conversations, deleteConversation, isLoading } = useChatHistory();
   const { setTheme, theme } = useTheme();
   const [isMounted, setIsMounted] = useState(false);
-  
+  const [profile, setProfile] = useState<UserProfile>(DEFAULT_USER_PROFILE);
+
   useEffect(() => {
     setIsMounted(true);
+
+    const loadProfile = () => {
+       try {
+        const savedProfile = localStorage.getItem(USER_PROFILE_KEY);
+        if (savedProfile) {
+          setProfile({ ...DEFAULT_USER_PROFILE, ...JSON.parse(savedProfile) });
+        }
+      } catch (error) {
+        console.error('Failed to parse profile from localStorage', error);
+        setProfile(DEFAULT_USER_PROFILE);
+      }
+    }
+    
+    loadProfile();
+
+    window.addEventListener('storage', loadProfile);
+    return () => window.removeEventListener('storage', loadProfile);
+
   }, []);
   
   const conversationId = pathname.startsWith('/chat/') ? pathname.split('/').pop() : null;
@@ -87,12 +108,20 @@ export default function AppSidebar() {
       </>
     );
   };
+  
+  const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return names[0][0] + names[names.length - 1][0];
+    }
+    return name.substring(0, 2);
+  }
 
   return (
     <Sidebar className="border-r" collapsible="icon">
       <SidebarHeader>
         <Link href="/" className="flex items-center gap-2">
-          <img width="32" height="32" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAADoElEQVR4nO1ZSWtUQRBuL+bgrkSnerJAjAje9BoFd1CiB/0HejW56kVPinrVi968iRchqIEkZgbMVL0QhERQBIMH44bbJVE0HvykOu/F58ssPZNkJqMpKGb6ve7q+mrrnhpjlmkuPd2BlWJxRQhvhfCOLa72tqPB1AuJxWUmXBxOo0ksoKwgTL0QE94MEVoURARAPWHqCYBEiv/xwHtTTyEkCQCaE6bOkvhymMRvVfm6SuKIhlqwQdnUK7HFLw0fGKww9Ui8DKDGtCQA9LajQQhdTBhmi695yuOCMlt8E4sRJnTPu3JJE9JCGGNCT5DG3rEtWGUWmYY3Yi2nsV8I95nwRK8j87H8KBPO6TiwOM6EbJW88Eks+oSQUQNW5IkwbHqKnKxVYyZ0lw1AY17DRi1fS+VlBsBw+R6wmMxtwhoNm9iNsqNsQeXuS+jIA2KqohKo5U8XR4LcWDcg3FtwSxNYLI5Feyffl12KIwBxYdWq5/xfAghiZTJSvBgATqGVCQM6332m0OqtYAqtQnhYaG0hABrOYU66UEv+hp3IpXBSEzcSUhQAYSBRKQZ8AajyxdZyAQCP27AuSOEEE16wxaW45SekCRulCe1CuO3jASH8SCgx7RtiOrfYWi4AQJ8z4bPzHmGaLTpVWFYt75S3+KiTgzS2lfTAPBItXxVCCdk5i+1znhMyKmwqrPd3CqFeCgAkP086ABpbkfV9AZRSohoA2OKTxnLGJcbMBcrfAyXieKFzQPJzn07uZMJ4sqp4AKi4CpVay54AcoTDkcCLSauUBKDngEW/q80W/dqJ8wZQYi17AGCL838LtegUwmDy7rNUTmKJcUA45CVkKQFATBcvPf5JADnCnsVWPiDsLlRmywKgh0S2FevLKGmLyZN62EbfvSyhP+PE4qBYfKg1AJ5p6ewMx8+9AAjhjBAeuO5ArT1A6BKLC+H4ZrltlWyNlR99lEJjdFNgiwNeAGKNrdFaKj9i0cwWd8NxxlT0Z8VMOEn8kCsSrz+1Gabg44bQZ/rOQ/EpIQS6Z2h5pzwTvuiV31SDcmkcTfxP9tLr9DTGZBuxWgi7NOZnw4bwpRolfJaY8DreQyrQ6/ENo8GqWT4OwHX0KusfTbLFMybcyKWxz9SCghSOiMWrWF6M65lSE2WWaZkqpKHNaGOLU0w4yxbXmHDLddFCdtWBMKYlMs6ux0T4nqeafHfvEvOdDEImLtvtZXFd9xbC6VwzthZS9DfLEwcct7w1dgAAAABJRU5ErkJggg==" alt="chatbot"/>
+          <img width="32" height="32" src="https://img.icons8.com/ink/48/chatbot.png" alt="chatbot"/>
           <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
             AgentVerse
           </span>
@@ -179,9 +208,9 @@ export default function AppSidebar() {
             <SidebarMenuButton tooltip="Profile">
               <Avatar className="h-8 w-8">
                  <AvatarImage src="https://i.pinimg.com/736x/83/4f/e6/834fe637588ed7ccca41c0ebd659e855.jpg " alt="@user" data-ai-hint="user avatar" />
-                 <AvatarFallback>AV</AvatarFallback>
+                 <AvatarFallback>{getInitials(profile.name)}</AvatarFallback>
               </Avatar>
-              <span className="group-data-[collapsible=icon]:hidden">Abiodun Abbey Aina</span>
+              <span className="group-data-[collapsible=icon]:hidden">{profile.name}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
